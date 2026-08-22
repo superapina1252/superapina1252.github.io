@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<title>Kisakalenteri</title>
+<style>
+  /* Normaali tyyli */
+  body {
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: #fff;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+  }
+  .card {
+    background: #222;
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 15px 25px;
+    margin-bottom: 20px;
+    max-width: 700px;
+    width: 90vw;
+    margin-left: auto;
+    margin-right: auto;
+    white-space: normal;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    text-align: center;
+  }
+  .card h1 {
+    margin: 0 0 10px;
+  }
+  .next-race {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    color: #ffcc00;
+    margin-bottom: 5px;
+    white-space: normal;
+    line-height: 1.9em;
+    text-align: center;
+  }
+  .next-race .date,
+  .next-race .time {
+    display: block;
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    margin-top: 3px;
+  }
+  .countdown {
+    font-size: 1.5em;
+    color: #39ff14;
+    margin-bottom: 10px;
+  }
+  .race-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    font-size: 1.1em;
+    width: 100%;
+  }
+  .race-list li {
+    padding: 6px 0;
+    border-bottom: 1px solid #444;
+    text-align: center;
+  }
+  .past { color: #777; }
+  .upcoming { color: #fff; }
+  .highlight {
+    color: #ffcc00;
+    font-weight: bold;
+  }
+  .past-separator {
+    font-size: 0.9em;
+    color: #666;
+    margin: 15px 0 5px 0;
+    font-style: italic;
+    border-top: 1px solid #666;
+    padding-top: 5px;
+  }
+
+/* --- RETRO-TILA --- */
+  body.retro {
+    font-family: "Courier New", monospace;
+    font-weight: 600;
+    background: black;
+    color: #fff;
+    text-align: left;
+    font-size: clamp(14px, 2vw, 20px);
+    line-height: 1.2em;
+  }
+
+  body.retro .card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    text-align: left;
+    max-width: 900px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+    padding: clamp(1px, 4vw, 2px) clamp(10px, 4vw, 25px);
+    overflow: hidden; /* Add this line */
+    position: relative; /* Add this line for good measure */
+
+  }
+body.retro .card h1 {
+  margin: 0;
+  font-size: inherit;
+  color: white;
+  background: rgb(0, 0, 255);
+  padding: 2px 2px;
+  display: block;          /* inline-block -> block, jotta tausta ulottuu koko leveydelle */
+  width: 100%;             /* koko kortin/leveyden levyinen */
+  letter-spacing: 1px;
+}
+
+  body.retro .next-race {
+    font-size: inherit;
+    color: cyan;
+    margin-bottom: 3px;
+    text-align: left;
+  }
+  body.retro .next-race .date,
+  body.retro .next-race .time {
+    font-size: inherit;
+    margin-top: 2px;
+  }
+  body.retro .countdown {
+    font-size: inherit;
+    color: #39ff14;
+    margin-bottom: 1px;
+    animation: blink 1s step-start infinite;
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+        body.retro .race-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 900px;
+    }
+    body.retro .race-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 1px 0;
+      border: none;
+      font-family:inherit;
+      font-size: inherit;
+      color: inherit;
+      background: none;
+    }
+    body.retro .race-list .weekday {
+      flex: 1.5 1 0;
+  }
+    body.retro .race-list .date {
+      flex: 1.5 1 0;
+
+    }
+    body.retro .race-list .time {
+      flex: 1 1 0;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    body.retro .race-list .weekday { text-align: left; }
+    body.retro .race-list .date { text-align: left; color: #39ff14; padding-left: 1.5em; }
+    body.retro .race-list .time { text-align: right; padding-right: 1.5em; }
+  body.retro .past-separator {
+    grid-column: 1 / -1;
+    text-align: center;
+    max-width: 100%;      /* Add this line */
+    box-sizing: border-box;
+  }
+    body.retro .past,
+  body.retro .past .weekday,
+  body.retro .past .date,
+  body.retro .past .time {
+    color: yellow !important;
+  }
+  body.retro .upcoming { color: #fff; }
+  body.retro .upcoming .date { color: #39ff14; }
+  body.retro .highlight {
+    color: #ff0;
+    background: red;
+    font-weight: normal;
+  }
+  body.retro .past-separator {
+    font-size: inherit;
+    font-style: normal;
+    color: red;
+    margin: 5px 0;
+    border-top: 1px dashed red;
+    padding-top: 3px;
+    text-transform: uppercase;
+    text-align: left; /* Add this line */
+
+  }
+    body.retro .card,
+  body.retro .card h1,
+  body.retro .next-race,
+  body.retro .next-race .date,
+  body.retro .next-race .time,
+  body.retro .countdown,
+  body.retro .race-list,
+  body.retro .race-list li,
+  body.retro .race-list .weekday,
+  body.retro .race-list .date,
+  body.retro .race-list .time,
+  body.retro .past-separator {
+    font-size: inherit !important;
+  }
+
+/* Nopea vilkkuminen (oletus) */
+body.retro .countdown.blink-fast {
+  animation: blink 1s step-start infinite;
+}
+
+/* Hidas vilkkuminen */
+body.retro .countdown.blink-slow {
+  animation: blink 2s step-start infinite;
+}
+
+/* Ei vilkkumista */
+body.retro .countdown.no-blink {
+  animation: none;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+    /* --- OUTRUN-TAUSTA --- */
+    body.synthwave {
+      --c1: hsl(219, 79%, 66%);
+      --c2: hsl(319, 100%, 60%);
+      --c3: hsl(266, 49%, 25%);
+      --c4: hsl(60, 82%, 58%);
+      --c5: hsl(0, 67%, 55%);
+      --c6: hsl(213, 96%, 11%);
+      --c2hsl: 319, 100%, 60%;
+      
+    }
+
+    @property --outrun {
+      syntax: "<number>";
+      initial-value: 0;
+      inherits: false;
+    }
+
+    @keyframes outrun {
+      to { --outrun: 1; }
+    }
+
+    /*html {
+      height: 100vh;
+    }*/
+
+    body.synthwave::before {
+
+  content: "";
+  position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+  height: 100vh;
+      z-index: -1; /* pysyy taustalla */
+  pointer-events: none;
+  filter: brightness(1.125);
+  animation: outrun 0.6s linear infinite;
+
+      --lgDepth: url("data:image/svg+xml;utf8,<svg width='1808' height='230' xmlns='http://www.w3.org/2000/svg'><path d='M904 -46 L-3616 230 M904 -46 L-3254.4 230 M904 -46 L-2892.8 230 M904 -46 L-2531.2000000000003 230 M904 -46 L-2169.6000000000004 230 M904 -46 L-1808 230 M904 -46 L-1446.4 230 M904 -46 L-1084.8000000000002 230 M904 -46 L-723.2 230 M904 -46 L-361.6 230 M904 -46 L0 230 M904 -46 L361.6 230 M904 -46 L723.2 230 M904 -46 L1084.8000000000002 230 M904 -46 L1446.4 230 M904 -46 L1808 230 M904 -46 L2169.6000000000004 230 M904 -46 L2531.2000000000003 230 M904 -46 L2892.8 230 M904 -46 L3254.4 230 M904 -46 L3616 230 M904 -46 L3977.6000000000004 230 M904 -46 L4339.200000000001 230 M904 -46 L4700.8 230 M904 -46 L5062.400000000001 230 M904 -46 L5424 230' stroke='cornflowerblue' stroke-width='2' vector-effect='non-scaling-stroke' /></svg>") left bottom / 100% 40% no-repeat;
+  --outrun: 0;
+  --pos: var(--outrun, 0);
+  --distance: 0.5%;
+  --hor: 60%;
+      --l0: calc(var(--hor) + 0 * 0 * var(--distance) + (((0 + 1) * (0 + 1) * var(--distance) - 0 * 0 * var(--distance)) * var(--pos)));
+      --l1: calc(var(--hor) + 1 * 1 * var(--distance) + (((1 + 1) * (1 + 1) * var(--distance) - 1 * 1 * var(--distance)) * var(--pos)));
+      --l2: calc(var(--hor) + 2 * 2 * var(--distance) + (((2 + 1) * (2 + 1) * var(--distance) - 2 * 2 * var(--distance)) * var(--pos)));
+      --l3: calc(var(--hor) + 3 * 3 * var(--distance) + (((3 + 1) * (3 + 1) * var(--distance) - 3 * 3 * var(--distance)) * var(--pos)));
+      --l4: calc(var(--hor) + 4 * 4 * var(--distance) + (((4 + 1) * (4 + 1) * var(--distance) - 4 * 4 * var(--distance)) * var(--pos)));
+      --l5: calc(var(--hor) + 5 * 5 * var(--distance) + (((5 + 1) * (5 + 1) * var(--distance) - 5 * 5 * var(--distance)) * var(--pos)));
+      --l6: calc(var(--hor) + 6 * 6 * var(--distance) + (((6 + 1) * (6 + 1) * var(--distance) - 6 * 6 * var(--distance)) * var(--pos)));
+      --l7: calc(var(--hor) + 7 * 7 * var(--distance) + (((7 + 1) * (7 + 1) * var(--distance) - 7 * 7 * var(--distance)) * var(--pos)));
+      --l8: calc(var(--hor) + 8 * 8 * var(--distance) + (((8 + 1) * (8 + 1) * var(--distance) - 8 * 8 * var(--distance)) * var(--pos)));
+      --l9: calc(var(--hor) + 9 * 9 * var(--distance) + (((9 + 1) * (9 + 1) * var(--distance) - 9 * 9 * var(--distance)) * var(--pos)));
+
+  --lgh: linear-gradient(transparent 0px var(--hor), var(--c1) var(--hor) calc(var(--hor) + 2px), transparent calc(var(--hor) + 2px));
+  --lg0: linear-gradient(transparent 0px calc(var(--l0)), var(--c1) calc(var(--l0)) calc(var(--l0) + 2px), transparent calc(var(--l0) + 2px));
+  --lg1: linear-gradient(transparent 0px calc(var(--l1)), var(--c1) calc(var(--l1)) calc(var(--l1) + 2px), transparent calc(var(--l1) + 2px));
+  --lg2: linear-gradient(transparent 0px calc(var(--l2)), var(--c1) calc(var(--l2)) calc(var(--l2) + 2px), transparent calc(var(--l2) + 2px));
+  --lg3: linear-gradient(transparent 0px calc(var(--l3)), var(--c1) calc(var(--l3)) calc(var(--l3) + 2px), transparent calc(var(--l3) + 2px));
+  --lg4: linear-gradient(transparent 0px calc(var(--l4)), var(--c1) calc(var(--l4)) calc(var(--l4) + 2px), transparent calc(var(--l4) + 2px));
+  --lg5: linear-gradient(transparent 0px calc(var(--l5)), var(--c1) calc(var(--l5)) calc(var(--l5) + 2px), transparent calc(var(--l5) + 2px));
+  --lg6: linear-gradient(transparent 0px calc(var(--l6)), var(--c1) calc(var(--l6)) calc(var(--l6) + 2px), transparent calc(var(--l6) + 2px));
+  --lg7: linear-gradient(transparent 0px calc(var(--l7)), var(--c1) calc(var(--l7)) calc(var(--l7) + 2px), transparent calc(var(--l7) + 2px));
+  --lg8: linear-gradient(transparent 0px calc(var(--l8)), var(--c1) calc(var(--l8)) calc(var(--l8) + 2px), transparent calc(var(--l8) + 2px));
+  --lg9: linear-gradient(transparent 0px calc(var(--l9)), var(--c1) calc(var(--l9)) calc(var(--l9) + 2px), transparent calc(var(--l9) + 2px));
+
+      background:
+        var(--lgDepth),
+              var(--lgh),
+              var(--lg0),
+              var(--lg1),
+              var(--lg2),
+              var(--lg3),
+              var(--lg4),
+              var(--lg5),
+              var(--lg6),
+              var(--lg7),
+              var(--lg8),
+              var(--lg9),
+              linear-gradient(transparent 20%, var(--c5) 60%, var(--c3) 60% 70%, hsla(var(--c2hsl), 0.75), transparent 150%),
+              repeating-linear-gradient(90deg, transparent 0px 2px, var(--c3) 3px 2px),
+              radial-gradient(circle at center, transparent min(45vh, 45vw), hsla(var(--c2hsl), 0.75) min(65vh, 65vw), var(--c3) 120%),
+              radial-gradient(circle at center, var(--c4) min(45vh, 45vw), transparent min(45vh, 45vw)),
+              linear-gradient(var(--c5) 60%, var(--c3) 60%, var(--c2) 150%);
+}
+/* --- SYNTHWAVE-TILA --- */
+body.synthwave {
+  margin: 0;
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  text-align: center;
+  background: radial-gradient(circle at center, #1a0033 0%, #0a001a 100%);
+  position: relative;
+  z-index: 0;               /* tärkeä: tekee body:stä stacking contextin */
+  min-height: 100vh;
+  /* TÄMÄ korjaa skrollauksen: */
+  overflow-x: hidden;      /* estää horisontaalisen scrollin */
+  overflow-y: auto;        /* salli pystysuuntainen skrollaus */
+  -webkit-overflow-scrolling: touch; /* parempi iOS-scrollaus */
+}
+
+/* Taustapseudo — saa olla fixed ja pointer-events:none */
+body.synthwave::before {
+  content: "";
+  position: fixed;
+  inset: 0;                 /* top:0; right:0; bottom:0; left:0; */
+  z-index: -1;              /* jää body:n (z-index:0) taakse */
+  pointer-events: none;     /* ei nappaa klikkejä / skrollia */
+  filter: brightness(1.125);
+  animation: outrun 0.6s linear infinite;
+  /* ... tähän koko taustasi background: ... -määrittely ... */
+}
+
+
+/* Kortit ruudukon päällä */
+@keyframes neon-glow {
+  0% {
+    box-shadow: 0 0 5px #ff00ff, 0 0 10px #00ffff, 0 0 20px #ff00ff;
+  }
+  50% {
+    box-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff, 0 0 40px #00ffff;
+  }
+  100% {
+    box-shadow: 0 0 5px #ff00ff, 0 0 10px #00ffff, 0 0 20px #ff00ff;
+  }
+}
+
+body.synthwave .card {
+  position: relative;
+  z-index: 1;
+  background: rgba(20, 0, 40, 0.85);
+  border: 2px solid #ff00ff;
+  border-radius: 12px;
+  padding: 15px 25px;
+  margin-bottom: 20px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #fff;
+  animation: neon-glow 10s ease-in-out infinite; /* 💡 lisää tämä */
+}
+
+
+body.synthwave .next-race {
+  color: #ff00ff;
+  text-shadow: 0 0 5px #ff00ff, 0 0 15px #00ffff;
+}
+
+body.synthwave .countdown {
+  color: #00ffff;
+  text-shadow: 0 0 5px #00ffff, 0 0 15px #ff00ff;
+}
+
+body.synthwave .race-list li {
+  border-bottom: 1px solid #440088;
+}
+
+body.synthwave .past { color: #5555aa; }
+body.synthwave .upcoming { color: #ff66ff; }
+body.synthwave .past-separator { color: #8888ff; border-top: 1px solid #8888ff; 
+font-style: normal;}
+
+/* Retro-nappi */
+#toggleRetro {
+  background: #444;
+  color: white;
+  border: 2px solid #888;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin: 5px auto 0 auto; /* Adds space above and centers */
+  display: block;           /* Makes the button take its own line */
+  z-index: 2;
+}
+  #toggleRetro:hover {
+    background: #666;
+  }
+
+</style>
+</head>
+</body>
+</html>
+<body>
+
+<div class="card">
+  <h1>Seuraava RäbäCup™-kisa</h1>
+  <div class="next-race" id="nextRace">Ladataan...</div>
+  <div class="countdown" id="countdown">Ladataan...</div>
+</div>
+
+<div class="card">
+  <h1>Kaikki kisat</h1>
+  <ul id="raceList" class="race-list"></ul>
+</div>
+
+<button id="toggleRetro">Retro-tila</button>
+
+<script>
+async function fetchRaces() {
+  const response = await fetch("kisat.txt?ts=" + Date.now(), {
+    cache: "no-store"
+  });
+  const text = await response.text();
+  return text
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+}
+
+function parseFinnishDate(str) {
+  const [datePart, timePart] = str.split(" ");
+  const [day, month, year] = datePart.split(".");
+  return new Date(`${year}-${month}-${day}T${timePart}`);
+}
+
+function getWeekdayName(date) {
+  return date.toLocaleDateString("fi-FI", { weekday: "long" });
+}
+
+function updateCountdown(targetDate) {
+  const now = new Date(); /* aika suoraan käyttäjän koneelta */
+  let diff = targetDate - now;
+  if (diff < 0) diff = 0;
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+  let parts = [];
+  if (days > 0) parts.push(`${days} päivää`);
+  if (hours > 0) parts.push(`${hours} tuntia`);
+  parts.push(`${minutes} minuuttia`);
+
+  document.getElementById("countdown").textContent =
+    parts.join(" ") + " seuraavaan kisaan";
+}
+
+
+
+
+/* ------------------ TEEMA ------------------*/
+const toggleBtn = document.getElementById("toggleRetro");
+const themes = ["modern", "retro", "synthwave"];  /* Kolme teemaa */
+
+/* Alkuperäinen tallennettu teema */
+let currentTheme = localStorage.getItem("theme") || "modern";
+
+function applyTheme() {
+  /* Poistetaan kaikki teemat */
+  document.body.classList.remove(...themes);
+  document.body.classList.add(currentTheme);
+
+  /* Päivitetään nappi teksti */
+  if (currentTheme === "modern") toggleBtn.textContent = "Retro";
+  else if (currentTheme === "retro") toggleBtn.textContent = "Synthwave";
+  else toggleBtn.textContent = "Moderni";
+
+  localStorage.setItem("theme", currentTheme);
+
+  /* Päivitetään sivun otsikko */
+  document.title = currentTheme === "retro" ? ">>> Kisakalenteri <<<" : "Kisakalenteri";
+}
+
+/* Teeman vaihtaminen napista */
+toggleBtn.addEventListener("click", () => {
+  let index = themes.indexOf(currentTheme);
+  index = (index + 1) % themes.length;
+  currentTheme = themes[index];
+  applyTheme();
+});
+
+/* Alustetaan teema sivun latauksessa */
+applyTheme();
+
+
+/* ------------------ COUNTDOWN ------------------ */
+const countdownEl = document.getElementById("countdown");
+
+function setBlinkClass(setting) {
+  countdownEl.classList.remove("blink-fast", "blink-slow", "no-blink");
+  if (setting === "fast") countdownEl.classList.add("blink-fast");
+  if (setting === "slow") countdownEl.classList.add("blink-slow");
+  if (setting === "none") countdownEl.classList.add("no-blink");
+}
+
+function applyBlink() {
+  let blinkSetting = localStorage.getItem("countdownBlink") || "fast";
+  setBlinkClass(blinkSetting);
+
+  countdownEl.addEventListener("click", () => {
+    if (blinkSetting === "fast") blinkSetting = "slow";
+    else if (blinkSetting === "slow") blinkSetting = "none";
+    else blinkSetting = "fast";
+
+    setBlinkClass(blinkSetting);
+    localStorage.setItem("countdownBlink", blinkSetting);
+  });
+}
+
+applyBlink();
+
+/* ------------------ KISAT ------------------ */
+function parseFinnishDate(str) {
+  const [datePart, timePart] = str.split(" ");
+  const [day, month, year] = datePart.split(".");
+  return new Date(`${year}-${month}-${day}T${timePart}`);
+}
+
+function getWeekdayName(date) {
+  return date.toLocaleDateString("fi-FI", { weekday: "long" });
+}
+
+function getFinlandNowLocal() {
+  return new Date();
+}
+
+function updateCountdown(targetDate) {
+  const now = getFinlandNowLocal();
+  let diff = targetDate - now;
+  if (diff < 0) diff = 0;
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+  let parts = [];
+  if (days > 0) parts.push(`${days} päivää`);
+  if (hours > 0) parts.push(`${hours} tuntia`);
+  parts.push(`${minutes} minuuttia`);
+
+  countdownEl.textContent = parts.join(" ") + " seuraavaan kisaan";
+}
+
+async function fetchRaces() {
+  const response = await fetch("kisat.txt?ts=" + Date.now(), { cache: "no-store" });
+  const text = await response.text();
+  return text.split("\n").map(line => line.trim()).filter(line => line.length > 0);
+}
+
+async function init() {
+  const raceLines = await fetchRaces();
+  const now = getFinlandNowLocal();
+  let nextRace = null;
+
+  /* Parsitaan ja järjestetään kisat aina päivämäärän mukaan */
+  const races = raceLines.map(line => ({ text: line, date: parseFinnishDate(line) }));
+  races.sort((a, b) => a.date - b.date);
+
+  const raceListEl = document.getElementById("raceList");
+  raceListEl.innerHTML = "";
+
+  /* Erotellaan tulevat ja menneet kisat */
+  const upcoming = races.filter(r => r.date >= now);
+  const past = races.filter(r => r.date < now);
+
+  /* Luo listaelementit kaikille */
+  function createListItem(race, klass) {
+    const li = document.createElement("li");
+    const weekdayStr = getWeekdayName(race.date);
+    const dateStr = race.date.toLocaleDateString("fi-FI", { day: "numeric", month: "numeric", year: "numeric" });
+    const timeStr = race.date.toLocaleTimeString("fi-FI", { hour: "2-digit", minute: "2-digit" }).replace(":", ".");
+    li.innerHTML = `<span class="weekday">${weekdayStr}</span>
+                    <span class="date">${dateStr}</span>
+                    <span class="time">${timeStr}</span>`;
+    li.className = klass;
+    return li;
+  }
+
+  /* Lisää tulevat kisat */
+  if (upcoming.length > 0) {
+    const ulUpcoming = document.createElement("ul");
+    ulUpcoming.className = "race-list";
+    upcoming.forEach(race => {
+      ulUpcoming.appendChild(createListItem(race, "upcoming"));
+      if (!nextRace || race.date < nextRace) nextRace = race.date;
+    });
+    raceListEl.appendChild(ulUpcoming);
+  }
+
+  /* Lisää menneet kisat */
+  if (past.length > 0) {
+    const sep = document.createElement("div");
+    sep.textContent = "Menneet kisat";
+    sep.className = "past-separator";
+    raceListEl.appendChild(sep);
+
+    const ulPast = document.createElement("ul");
+    ulPast.className = "race-list";
+    past.forEach(race => {
+      ulPast.appendChild(createListItem(race, "past"));
+    });
+    raceListEl.appendChild(ulPast);
+  }
+
+  /* Päivitä seuraava kisa ja countdown */
+  if (nextRace) {
+    const optionsDate = { weekday: "long", day: "numeric", month: "numeric", year: "numeric" };
+    const dateStr = nextRace.toLocaleDateString("fi-FI", optionsDate);
+    const timeStr = nextRace.toLocaleTimeString("fi-FI", { hour: "2-digit", minute: "2-digit" }).replace(":", ".");
+    document.getElementById("nextRace").innerHTML = `<span class="date">${dateStr}</span><span class="time">klo ${timeStr}</span>`;
+    setInterval(() => updateCountdown(nextRace), 1000);
+    updateCountdown(nextRace);
+  } else {
+    document.getElementById("nextRace").textContent = "Ei tulevia kisoja";
+    countdownEl.textContent = "";
+  }
+}
+init();
+</script>
+
+
+
+
+</body>
+</html>
